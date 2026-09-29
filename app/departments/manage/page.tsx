@@ -79,6 +79,19 @@ export default function ManageDepartmentsPage() {
     };
   }, []);
 
+  // Keyboard accessibility: Close modal on Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isModalOpen && !isSubmitting) {
+        setIsModalOpen(false);
+      }
+    };
+    if (isModalOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isModalOpen, isSubmitting]);
+
   // Filtered department list
   const filteredDepartments = departments.filter((d) => {
     if (!searchFilter.trim()) return true;
