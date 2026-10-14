@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { ProtectedLink } from "@/components/auth-only";
 import { apiClient, ApiError } from "@/lib/api";
 import { DepartmentListItem } from "@/lib/types";
 import { ActiveBadge } from "@/components/badges";
@@ -90,7 +91,7 @@ export default function DepartmentsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link
+          <ProtectedLink
             href="/admin/departments"
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
@@ -99,7 +100,7 @@ export default function DepartmentsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             <span>Quản lý Phòng ban</span>
-          </Link>
+          </ProtectedLink>
         </div>
       </div>
 
@@ -182,6 +183,7 @@ export default function DepartmentsPage() {
           actionText={searchQuery ? "Xóa bộ lọc tìm kiếm" : "Thêm phòng ban mới"}
           onAction={searchQuery ? handleClearSearch : undefined}
           actionHref={searchQuery ? undefined : "/admin/departments"}
+          actionRequiresAuth={!searchQuery}
         />
       )}
 

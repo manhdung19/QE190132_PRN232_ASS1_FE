@@ -2,10 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { clearSession } from "@/lib/auth-session";
+import { useAuthSession } from "@/components/auth-only";
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const session = useAuthSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [manageDropdownOpen, setManageDropdownOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -18,7 +22,7 @@ export function Navbar() {
   }
 
   const isHome = pathname === "/";
-  const isDepartments = pathname.startsWith("/departments") && !pathname.includes("/manage");
+  const isDepartments = pathname.startsWith("/departments");
   const isSearch = pathname === "/search";
   const isManage = pathname.startsWith("/admin");
 
@@ -27,7 +31,15 @@ export function Navbar() {
     { href: "/admin/projects", label: "Quản lý Dự án", desc: "Thêm, sửa, xóa dự án" },
     { href: "/admin/tasks", label: "Quản lý Công việc", desc: "Thêm, sửa, xóa công việc" },
     { href: "/admin/tags", label: "Quản lý Nhãn", desc: "Thêm, sửa, xóa nhãn phân loại" },
+    ...(session?.account.role === 1 ? [{ href: "/admin/accounts", label: "Quản lý Tài khoản", desc: "Vai trò và tài khoản" }] : []),
   ];
+
+  const logout = () => {
+    clearSession();
+    setMobileMenuOpen(false);
+    setManageDropdownOpen(false);
+    router.replace("/");
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
@@ -84,7 +96,7 @@ export function Navbar() {
             </Link>
 
             {/* Manage Dropdown */}
-            <div className="relative">
+            {session && <div className="relative">
               <button
                 type="button"
                 onClick={() => setManageDropdownOpen((prev) => !prev)}
@@ -134,7 +146,7 @@ export function Navbar() {
                   </div>
                 </>
               )}
-            </div>
+            </div>}
           </nav>
         </div>
 
@@ -149,7 +161,7 @@ export function Navbar() {
             </svg>
             Tìm kiếm
           </Link>
-          <Link
+          {session && <Link
             href="/admin/tasks"
             className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs hover:bg-indigo-700 transition-colors"
           >
@@ -157,7 +169,14 @@ export function Navbar() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             Tạo Task
-          </Link>
+          </Link>}
+          {session ? <>
+            <span className="max-w-40 truncate text-xs font-medium text-slate-700" title={session.account.fullName}>{session.account.fullName}</span>
+            <button type="button" onClick={logout} className="text-xs font-semibold text-slate-700 hover:text-indigo-700">Đăng xuất</button>
+          </> : <>
+            <Link href="/login" className="text-xs font-semibold text-indigo-700 hover:underline">Đăng nhập</Link>
+            <Link href="/register" className="text-xs font-semibold text-slate-700 hover:underline">Đăng ký</Link>
+          </>}
         </div>
 
         {/* Mobile menu hamburger button */}
@@ -209,7 +228,7 @@ export function Navbar() {
             Tìm kiếm Task
           </Link>
 
-          <div className="pt-2 pb-1 border-t border-slate-100">
+          {session && <><div className="pt-2 pb-1 border-t border-slate-100">
             <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
               Quản lý tài nguyên
             </p>
@@ -227,6 +246,16 @@ export function Navbar() {
               {item.label}
             </Link>
           ))}
+          </>}
+          <div className="mt-3 border-t border-slate-100 pt-3">
+            {session ? <>
+              <p className="px-3 py-2 text-sm font-medium text-slate-700">{session.account.fullName}</p>
+              <button type="button" onClick={logout} className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-rose-700 hover:bg-rose-50">Đăng xuất</button>
+            </> : <>
+              <Link href="/login" className="block rounded-lg px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50">Đăng nhập</Link>
+              <Link href="/register" className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Đăng ký</Link>
+            </>}
+          </div>
         </div>
       )}
     </header>

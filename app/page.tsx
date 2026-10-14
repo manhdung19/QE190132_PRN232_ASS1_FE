@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { ProtectedLink } from "@/components/auth-only";
 import { apiClient, ApiError } from "@/lib/api";
 import { ProjectListItem, ProjectStatus } from "@/lib/types";
 import { ProjectStatusBadge } from "@/components/badges";
@@ -113,7 +114,7 @@ export default function Home() {
               <span>Tìm kiếm Task</span>
             </Link>
 
-            <Link
+            <ProtectedLink
               href="/admin/tasks"
               className="inline-flex items-center gap-2 rounded-xl border border-indigo-400/30 bg-indigo-500/20 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500/30 transition-all backdrop-blur-xs"
             >
@@ -121,7 +122,7 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               <span>Tạo công việc mới</span>
-            </Link>
+            </ProtectedLink>
           </div>
         </div>
       </section>
@@ -176,8 +177,7 @@ export default function Home() {
           </Link>
 
           {/* Card 2: Projects */}
-          <Link
-            href="/admin/projects"
+          <div
             className="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs hover:border-blue-300 hover:shadow-md transition-all"
           >
             <div className="flex items-center justify-between">
@@ -204,9 +204,9 @@ export default function Home() {
             </div>
             <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
               <span>{inProgressProjects} đang làm • {completedProjects} hoàn thành</span>
-              <span className="font-medium text-blue-600 group-hover:text-blue-700">Quản lý</span>
+              <span className="font-medium text-blue-600">Tổng quan dự án</span>
             </div>
-          </Link>
+          </div>
 
           {/* Card 3: Tasks */}
           <Link
@@ -281,7 +281,7 @@ export default function Home() {
               </svg>
               <span>Làm mới</span>
             </button>
-            <Link
+            <ProtectedLink
               href="/admin/projects"
               className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 py-1.5 text-xs font-medium text-white shadow-xs hover:bg-indigo-700 transition-colors"
             >
@@ -289,7 +289,7 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               <span>Thêm dự án</span>
-            </Link>
+            </ProtectedLink>
           </div>
         </div>
 
@@ -320,6 +320,7 @@ export default function Home() {
             description="Hiện chưa có dự án hoạt động nào trong hệ thống. Hãy bắt đầu bằng cách thêm dự án mới."
             actionText="Tạo dự án ngay"
             actionHref="/admin/projects"
+            actionRequiresAuth
           />
         )}
 

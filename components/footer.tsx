@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { API_BASE_URL } from "@/lib/config";
+import { AuthOnly } from "@/components/auth-only";
 
 export function Footer() {
   return (
@@ -23,9 +24,9 @@ export function Footer() {
             <Link href="/search" className="hover:text-slate-900 transition-colors">
               Tìm kiếm
             </Link>
-            <Link href="/admin/tasks" className="hover:text-slate-900 transition-colors">
+            <AuthOnly><Link href="/admin/tasks" className="hover:text-slate-900 transition-colors">
               Quản lý Task
-            </Link>
+            </Link></AuthOnly>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-400">

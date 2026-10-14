@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { ProtectedLink } from "@/components/auth-only";
 import { useParams } from "next/navigation";
 import { apiClient, ApiError } from "@/lib/api";
 import { TaskDetail, ProjectDetail } from "@/lib/types";
@@ -235,7 +236,7 @@ export default function TaskDetailPage() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap md:flex-col items-stretch gap-2.5 shrink-0">
-                <Link
+                <ProtectedLink
                   href={`/admin/tasks?edit=${task.taskId}`}
                   className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition-colors shadow-2xs"
                 >
@@ -243,7 +244,7 @@ export default function TaskDetailPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   <span>Chỉnh sửa Task</span>
-                </Link>
+                </ProtectedLink>
 
                 {project && (
                   <Link

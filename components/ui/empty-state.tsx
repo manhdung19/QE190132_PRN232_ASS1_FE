@@ -1,11 +1,13 @@
 import React from "react";
 import Link from "next/link";
+import { AuthOnly } from "@/components/auth-only";
 
 interface EmptyStateProps {
   title?: string;
   description?: string;
   actionText?: string;
   actionHref?: string;
+  actionRequiresAuth?: boolean;
   onAction?: () => void;
   icon?: React.ReactNode;
   className?: string;
@@ -16,6 +18,7 @@ export function EmptyState({
   description = "Hiện tại chưa có bản ghi nào để hiển thị.",
   actionText,
   actionHref,
+  actionRequiresAuth = false,
   onAction,
   icon,
   className = "",
@@ -40,7 +43,10 @@ export function EmptyState({
       <h3 className="mt-4 text-base font-semibold text-slate-900">{title}</h3>
       <p className="mt-1 max-w-sm text-sm text-slate-500">{description}</p>
 
-      {actionText && (
+      {actionText && (actionRequiresAuth ? <AuthOnly><div className="mt-6"><Link
+        href={actionHref ?? "#"}
+        className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition-colors"
+      >{actionText}</Link></div></AuthOnly> :
         <div className="mt-6">
           {actionHref ? (
             <Link

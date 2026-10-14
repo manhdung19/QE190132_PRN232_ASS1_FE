@@ -367,6 +367,7 @@ export default function SearchTasksPage() {
               actionText={hasActiveFilters ? "Xóa toàn bộ bộ lọc" : "Tạo công việc mới"}
               onAction={hasActiveFilters ? handleResetFilters : undefined}
               actionHref={hasActiveFilters ? undefined : "/admin/tasks"}
+              actionRequiresAuth={!hasActiveFilters}
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

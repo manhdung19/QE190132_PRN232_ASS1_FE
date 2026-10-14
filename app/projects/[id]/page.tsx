@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { ProtectedLink } from "@/components/auth-only";
 import { useParams } from "next/navigation";
 import { apiClient, ApiError } from "@/lib/api";
 import { ProjectDetail, TaskStatus } from "@/lib/types";
@@ -224,7 +225,7 @@ export default function ProjectDetailPage() {
 
               {/* Action buttons */}
               <div className="flex flex-wrap md:flex-col items-stretch gap-2.5 shrink-0">
-                <Link
+                <ProtectedLink
                   href="/admin/projects"
                   className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
                 >
@@ -232,9 +233,9 @@ export default function ProjectDetailPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   <span>Chỉnh sửa dự án</span>
-                </Link>
+                </ProtectedLink>
 
-                <Link
+                <ProtectedLink
                   href="/admin/tasks"
                   className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition-colors shadow-2xs"
                 >
@@ -242,7 +243,7 @@ export default function ProjectDetailPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
                   <span>Tạo Task mới</span>
-                </Link>
+                </ProtectedLink>
               </div>
             </div>
 
@@ -328,6 +329,7 @@ export default function ProjectDetailPage() {
                 description={`Dự án "${project.projectName}" hiện chưa có công việc nào. Bắt đầu bằng cách tạo công việc đầu tiên.`}
                 actionText="Tạo Task mới"
                 actionHref="/admin/tasks"
+                actionRequiresAuth
               />
             ) : filteredTasks.length === 0 ? (
               <EmptyState

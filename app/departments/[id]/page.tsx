@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { ProtectedLink } from "@/components/auth-only";
 import { useParams } from "next/navigation";
 import { apiClient, ApiError } from "@/lib/api";
 import { DepartmentDetail } from "@/lib/types";
@@ -180,7 +181,7 @@ export default function DepartmentDetailPage() {
                   <span>Tất cả phòng ban</span>
                 </Link>
 
-                <Link
+                <ProtectedLink
                   href="/admin/departments"
                   className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition-colors shadow-2xs"
                 >
@@ -188,7 +189,7 @@ export default function DepartmentDetailPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   <span>Quản lý / Chỉnh sửa</span>
-                </Link>
+                </ProtectedLink>
               </div>
             </div>
           </section>
@@ -210,7 +211,7 @@ export default function DepartmentDetailPage() {
                 </p>
               </div>
 
-              <Link
+              <ProtectedLink
                 href="/admin/projects"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-2xs"
               >
@@ -218,7 +219,7 @@ export default function DepartmentDetailPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 <span>Tạo dự án mới</span>
-              </Link>
+              </ProtectedLink>
             </div>
 
             {/* Empty Projects State */}
@@ -228,6 +229,7 @@ export default function DepartmentDetailPage() {
                 description={`Phòng ban "${department.departmentName}" hiện chưa có dự án hoạt động nào.`}
                 actionText="Tạo dự án cho phòng ban này"
                 actionHref="/admin/projects"
+                actionRequiresAuth
               />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
