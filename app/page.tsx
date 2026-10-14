@@ -114,7 +114,7 @@ export default function Home() {
             </Link>
 
             <Link
-              href="/tasks/manage"
+              href="/admin/tasks"
               className="inline-flex items-center gap-2 rounded-xl border border-indigo-400/30 bg-indigo-500/20 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500/30 transition-all backdrop-blur-xs"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -177,7 +177,7 @@ export default function Home() {
 
           {/* Card 2: Projects */}
           <Link
-            href="/projects/manage"
+            href="/admin/projects"
             className="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs hover:border-blue-300 hover:shadow-md transition-all"
           >
             <div className="flex items-center justify-between">
@@ -282,7 +282,7 @@ export default function Home() {
               <span>Làm mới</span>
             </button>
             <Link
-              href="/projects/manage"
+              href="/admin/projects"
               className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 py-1.5 text-xs font-medium text-white shadow-xs hover:bg-indigo-700 transition-colors"
             >
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -319,7 +319,7 @@ export default function Home() {
             title="Không có dự án nào"
             description="Hiện chưa có dự án hoạt động nào trong hệ thống. Hãy bắt đầu bằng cách thêm dự án mới."
             actionText="Tạo dự án ngay"
-            actionHref="/projects/manage"
+            actionHref="/admin/projects"
           />
         )}
 

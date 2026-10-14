@@ -91,7 +91,7 @@ export default function DepartmentsPage() {
 
         <div className="flex items-center gap-3">
           <Link
-            href="/departments/manage"
+            href="/admin/departments"
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -181,7 +181,7 @@ export default function DepartmentsPage() {
           }
           actionText={searchQuery ? "Xóa bộ lọc tìm kiếm" : "Thêm phòng ban mới"}
           onAction={searchQuery ? handleClearSearch : undefined}
-          actionHref={searchQuery ? undefined : "/departments/manage"}
+          actionHref={searchQuery ? undefined : "/admin/departments"}
         />
       )}
 

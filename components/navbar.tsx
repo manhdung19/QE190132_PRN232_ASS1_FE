@@ -20,13 +20,13 @@ export function Navbar() {
   const isHome = pathname === "/";
   const isDepartments = pathname.startsWith("/departments") && !pathname.includes("/manage");
   const isSearch = pathname === "/search";
-  const isManage = pathname.includes("/manage");
+  const isManage = pathname.startsWith("/admin");
 
   const manageLinks = [
-    { href: "/departments/manage", label: "Quản lý Phòng ban", desc: "Thêm, sửa, xóa phòng ban" },
-    { href: "/projects/manage", label: "Quản lý Dự án", desc: "Thêm, sửa, xóa dự án" },
-    { href: "/tasks/manage", label: "Quản lý Công việc", desc: "Thêm, sửa, xóa công việc" },
-    { href: "/tags/manage", label: "Quản lý Nhãn", desc: "Thêm, sửa, xóa nhãn phân loại" },
+    { href: "/admin/departments", label: "Quản lý Phòng ban", desc: "Thêm, sửa, xóa phòng ban" },
+    { href: "/admin/projects", label: "Quản lý Dự án", desc: "Thêm, sửa, xóa dự án" },
+    { href: "/admin/tasks", label: "Quản lý Công việc", desc: "Thêm, sửa, xóa công việc" },
+    { href: "/admin/tags", label: "Quản lý Nhãn", desc: "Thêm, sửa, xóa nhãn phân loại" },
   ];
 
   return (
@@ -150,7 +150,7 @@ export function Navbar() {
             Tìm kiếm
           </Link>
           <Link
-            href="/tasks/manage"
+            href="/admin/tasks"
             className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs hover:bg-indigo-700 transition-colors"
           >
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

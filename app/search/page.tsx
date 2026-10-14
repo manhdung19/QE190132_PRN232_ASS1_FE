@@ -366,7 +366,7 @@ export default function SearchTasksPage() {
               description="Không có công việc nào thỏa mãn tất cả tiêu chí tìm kiếm hiện tại. Hãy thử điều chỉnh hoặc xóa bớt bộ lọc."
               actionText={hasActiveFilters ? "Xóa toàn bộ bộ lọc" : "Tạo công việc mới"}
               onAction={hasActiveFilters ? handleResetFilters : undefined}
-              actionHref={hasActiveFilters ? undefined : "/tasks/manage"}
+              actionHref={hasActiveFilters ? undefined : "/admin/tasks"}
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

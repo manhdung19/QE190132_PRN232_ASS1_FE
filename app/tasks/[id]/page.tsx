@@ -236,7 +236,7 @@ export default function TaskDetailPage() {
               {/* Action Buttons */}
               <div className="flex flex-wrap md:flex-col items-stretch gap-2.5 shrink-0">
                 <Link
-                  href={`/tasks/manage?edit=${task.taskId}`}
+                  href={`/admin/tasks?edit=${task.taskId}`}
                   className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition-colors shadow-2xs"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

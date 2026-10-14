@@ -181,7 +181,7 @@ export default function DepartmentDetailPage() {
                 </Link>
 
                 <Link
-                  href="/departments/manage"
+                  href="/admin/departments"
                   className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition-colors shadow-2xs"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -211,7 +211,7 @@ export default function DepartmentDetailPage() {
               </div>
 
               <Link
-                href="/projects/manage"
+                href="/admin/projects"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-2xs"
               >
                 <svg className="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -227,7 +227,7 @@ export default function DepartmentDetailPage() {
                 title="Chưa có dự án nào"
                 description={`Phòng ban "${department.departmentName}" hiện chưa có dự án hoạt động nào.`}
                 actionText="Tạo dự án cho phòng ban này"
-                actionHref="/projects/manage"
+                actionHref="/admin/projects"
               />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -27,13 +27,19 @@ function send(response, status, value) {
   response.end(JSON.stringify(value));
 }
 
+const idFields = { departments: "departmentId", projects: "projectId", tasks: "taskId", tags: "tagId" };
+
+async function readJson(request) {
+  let body = "";
+  for await (const chunk of request) body += chunk;
+  return body ? JSON.parse(body) : {};
+}
+
 http.createServer(async (request, response) => {
   if (request.method === "OPTIONS") return send(response, 204, null);
   const path = new URL(request.url, "http://localhost:5200").pathname;
   if (path === "/api/auth/login" && request.method === "POST") {
-    let body = "";
-    for await (const chunk of request) body += chunk;
-    const credentials = JSON.parse(body);
+    const credentials = await readJson(request);
     if (credentials.password !== "ExamplePass123!" ||
         !["staff@example.invalid", "expiring@example.invalid"].includes(credentials.email))
       return send(response, 401, { status: 401, title: "Invalid email or password" });
@@ -45,7 +51,44 @@ http.createServer(async (request, response) => {
       expiresAt: new Date(exp * 1000).toISOString(), account });
   }
   for (const [resource, items] of Object.entries(collections)) {
-    if (path === `/api/${resource}` && request.method === "GET") return send(response, 200, items);
+    if (path === `/api/${resource}` && request.method === "GET")
+      return send(response, 200, resource === "tasks" ? items.filter((item) => item.isActive) : items);
+    if (path === `/api/${resource}/search` && request.method === "GET")
+      return send(response, 200, resource === "tasks" ? items.filter((item) => item.isActive) : items);
+    const match = path.match(new RegExp(`^/api/${resource}/(\\d+)$`));
+    const id = match ? Number(match[1]) : null;
+    const idField = idFields[resource];
+    const index = id === null ? -1 : items.findIndex((item) => item[idField] === id);
+    if (request.method === "GET" && index >= 0) return send(response, 200, items[index]);
+    if (request.method === "GET" && id !== null) return send(response, 404, { status: 404, title: "Not found" });
+    if (path !== `/api/${resource}` && id === null) continue;
+    if (!["POST", "PUT", "DELETE"].includes(request.method)) continue;
+    if (!request.headers.authorization?.startsWith("Bearer "))
+      return send(response, 401, { status: 401, title: "Unauthorized" });
+    if (request.method === "POST") {
+      const data = await readJson(request);
+      const nextId = Math.max(0, ...items.map((item) => item[idField])) + 1;
+      const created = { ...data, [idField]: nextId };
+      if (resource === "tasks") {
+        created.createdDate = new Date().toISOString();
+        created.tags = collections.tags.filter((tag) => data.tagIds?.includes(tag.tagId));
+      }
+      if (resource === "projects") { created.createdDate = new Date().toISOString(); created.departmentName = "Engineering"; created.tasks = []; }
+      if (resource === "departments") created.projects = [];
+      items.push(created);
+      return send(response, 201, created);
+    }
+    if (index < 0) return send(response, 404, { status: 404, title: "Not found" });
+    if (request.method === "PUT") {
+      const data = await readJson(request);
+      items[index] = { ...items[index], ...data, [idField]: id };
+      if (resource === "tasks")
+        items[index].tags = collections.tags.filter((tag) => data.tagIds?.includes(tag.tagId));
+      return send(response, 200, items[index]);
+    }
+    if (resource === "tasks") items[index].isActive = false;
+    else items.splice(index, 1);
+    return send(response, 204, null);
   }
   return send(response, 404, { status: 404, title: "Not found" });
 }).listen(5200, "127.0.0.1", () => console.log("Mock API ready on 127.0.0.1:5200"));

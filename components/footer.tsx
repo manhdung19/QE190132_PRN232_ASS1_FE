@@ -23,7 +23,7 @@ export function Footer() {
             <Link href="/search" className="hover:text-slate-900 transition-colors">
               Tìm kiếm
             </Link>
-            <Link href="/tasks/manage" className="hover:text-slate-900 transition-colors">
+            <Link href="/admin/tasks" className="hover:text-slate-900 transition-colors">
               Quản lý Task
             </Link>
           </div>

@@ -52,12 +52,12 @@ Toàn bộ 10 trang theo yêu cầu Assignment 1 đã hoàn thiện và kết n�
 | 1 | `/` | **Trang chủ Dashboard**: Thống kê động tổng số phòng ban, dự án, công việc; danh sách dự án tiêu biểu kèm tiến độ và phím tắt thao tác. | `GET /api/departments`<br>`GET /api/projects`<br>`GET /api/tasks` |
 | 2 | `/departments` | **Danh sách Phòng ban**: Lưới thẻ phòng ban với tìm kiếm theo tên/mô tả, số lượng dự án trực thuộc. | `GET /api/departments` |
 | 3 | `/departments/[id]` | **Chi tiết Phòng ban**: Thông tin phòng ban và danh sách dự án thuộc phòng ban kèm tiến độ. | `GET /api/departments/{id}`<br>`GET /api/projects/department/{id}` |
-| 4 | `/departments/manage` | **Quản lý Phòng ban**: Bảng danh sách, modal Tạo mới/Chỉnh sửa, xác nhận xóa. Chặn xóa (HTTP 400 `errors.operation`) nếu còn dự án liên kết. | `GET/POST/PUT/DELETE /api/departments` |
+| 4 | `/admin/departments` | **Quản lý Phòng ban**: Bảng danh sách, modal Tạo mới/Chỉnh sửa, xác nhận xóa. Chặn xóa (HTTP 400 `errors.operation`) nếu còn dự án liên kết. | `GET/POST/PUT/DELETE /api/departments` |
 | 5 | `/projects/[id]` | **Chi tiết Dự án**: Tiến độ hoàn thành (progress bar), bộ lọc công việc thuộc dự án theo trạng thái, thẻ thông tin phòng ban. | `GET /api/projects/{id}`<br>`GET /api/tasks/project/{id}` |
-| 6 | `/projects/manage` | **Quản lý Dự án**: Bảng dự án, lọc theo tên, phòng ban, trạng thái. Modal tạo/sửa với date validation (`endDate >= startDate`). Chặn xóa nếu còn task liên kết. | `GET/POST/PUT/DELETE /api/projects`<br>`GET /api/departments` |
+| 6 | `/admin/projects` | **Quản lý Dự án**: Bảng dự án, lọc theo tên, phòng ban, trạng thái. Modal tạo/sửa với date validation (`endDate >= startDate`). Chặn xóa nếu còn task liên kết. | `GET/POST/PUT/DELETE /api/projects`<br>`GET /api/departments` |
 | 7 | `/tasks/[id]` | **Chi tiết Công việc**: Metadata đầy đủ (phòng ban, dự án, ngày tạo, ngày cập nhật, hạn chót), huy hiệu nhãn màu và liên kết điều hướng. | `GET /api/tasks/{id}`<br>`GET /api/projects/{id}` |
-| 8 | `/tasks/manage` | **Quản lý Công việc**: Bảng danh sách lọc đa tiêu chí, modal tạo/sửa với nạp chi tiết và multi-select tags. Cơ chế xóa mềm (`204 No Content`). | `GET/POST/PUT/DELETE /api/tasks`<br>`GET /api/projects`<br>`GET /api/tags` |
-| 9 | `/tags/manage` | **Quản lý Nhãn (Tags)**: Bảng nhãn kèm màu sắc, bộ chọn màu HEX và bảng màu mẫu trực quan, modal sửa từ dữ liệu danh sách (không có GET detail). Chặn xóa khi còn gắn vào task. | `GET/POST/PUT/DELETE /api/tags` |
+| 8 | `/admin/tasks` | **Quản lý Công việc**: Bảng danh sách lọc đa tiêu chí, modal tạo/sửa với nạp chi tiết và multi-select tags. Cơ chế xóa mềm (`204 No Content`). | `GET/POST/PUT/DELETE /api/tasks`<br>`GET /api/projects`<br>`GET /api/tags` |
+| 9 | `/admin/tags` | **Quản lý Nhãn (Tags)**: Bảng nhãn kèm màu sắc, bộ chọn màu HEX và bảng màu mẫu trực quan, modal sửa từ dữ liệu danh sách (không có GET detail). Chặn xóa khi còn gắn vào task. | `GET/POST/PUT/DELETE /api/tags` |
 | 10 | `/search` | **Tìm kiếm Công việc**: Tìm kiếm kết hợp AND đồng thời theo từ khóa tiêu đề, dự án, trạng thái, độ ưu tiên và nhãn phân loại. | `GET /api/tasks/search`<br>`GET /api/projects`<br>`GET /api/tags` |
 
 ---
@@ -70,6 +70,7 @@ Frontend/
 │   ├── layout.tsx                # Root layout chứa Navbar, Footer, ToastProvider
 │   ├── page.tsx                  # /: Trang chủ Dashboard
 │   ├── globals.css               # Định nghĩa màu sắc, utility classes
+│   ├── admin/                   # Guard đăng nhập, dashboard và 4 trang CRUD
 │   ├── departments/
 │   │   ├── page.tsx              # /departments: Danh sách phòng ban
 │   │   ├── [id]/page.tsx         # /departments/[id]: Chi tiết phòng ban
