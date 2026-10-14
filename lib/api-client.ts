@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "./config";
+import { clearSession, getSession, redirectToLogin } from "./auth-session";
 import {
   DepartmentListItem,
   DepartmentDetail,
@@ -20,6 +21,11 @@ import {
   TaskUpdateRequest,
   TaskSearchRequest,
   ProblemDetails,
+  AccountResponse,
+  AccountUpdateRequest,
+  RegisterRequest,
+  LoginRequest,
+  LoginResponse,
 } from "./types";
 
 // ==================== API ERROR CLASS ====================
@@ -113,10 +119,11 @@ export class ApiError extends Error {
 export interface RequestOptions extends Omit<RequestInit, "body"> {
   params?: Record<string, string | number | boolean | null | undefined>;
   body?: unknown;
+  auth?: "required" | "none";
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { params, headers, body, ...rest } = options;
+  const { params, headers, body, auth, ...rest } = options;
 
   let url = `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 
@@ -134,8 +141,16 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   const reqHeaders = new Headers(headers);
-  // Rule: Do NOT send Authorization header (endpoints are public)
-  reqHeaders.delete("Authorization");
+  const requiresAuth = auth === "required" ||
+    (auth !== "none" && (rest.method ?? "GET").toUpperCase() !== "GET");
+  if (requiresAuth) {
+    const session = getSession();
+    if (!session) {
+      redirectToLogin();
+      throw new ApiError({ status: 401, title: "Vui lòng đăng nhập" });
+    }
+    reqHeaders.set("Authorization", `Bearer ${session.token}`);
+  }
 
   let serializedBody: BodyInit | undefined = undefined;
   if (body !== undefined) {
@@ -190,6 +205,10 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   const status = response.status;
+  if (status === 401 && requiresAuth) {
+    clearSession();
+    redirectToLogin();
+  }
   const title =
     problem?.title ||
     (status === 404
@@ -220,6 +239,22 @@ export const apiClient = {
     request<T>(path, { method: "PUT", body }),
   delete: (path: string) =>
     request<void>(path, { method: "DELETE" }),
+
+  auth: {
+    register: (data: RegisterRequest) =>
+      request<AccountResponse>("/auth/register", { method: "POST", body: data, auth: "none" }),
+    login: (data: LoginRequest) =>
+      request<LoginResponse>("/auth/login", { method: "POST", body: data, auth: "none" }),
+  },
+
+  accounts: {
+    getAll: () => request<AccountResponse[]>("/accounts", { auth: "required" }),
+    getById: (id: number) => request<AccountResponse>(`/accounts/${id}`, { auth: "required" }),
+    update: (id: number, data: AccountUpdateRequest) =>
+      request<AccountResponse>(`/accounts/${id}`, { method: "PUT", body: data, auth: "required" }),
+    delete: (id: number) =>
+      request<void>(`/accounts/${id}`, { method: "DELETE", auth: "required" }),
+  },
 
   // Departments (Endpoints 1 - 6)
   departments: {

@@ -2,3 +2,4 @@ export * from "./types";
 export * from "./constants";
 export * from "./config";
 export * from "./api-client";
+export * from "./auth-session";

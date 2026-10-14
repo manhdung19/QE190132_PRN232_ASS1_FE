@@ -34,6 +34,38 @@ export interface ProblemDetails {
   [key: string]: unknown;
 }
 
+// ==================== AUTH & ACCOUNTS ====================
+export interface AccountResponse {
+  accountId: number;
+  fullName: string;
+  email: string;
+  role: 0 | 1;
+  createdDate: string;
+}
+
+export interface RegisterRequest {
+  fullName: string;
+  email: string;
+  password: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  tokenType: "Bearer";
+  expiresAt: string;
+  account: AccountResponse;
+}
+
+export interface AccountUpdateRequest {
+  fullName?: string;
+  role?: 0 | 1;
+}
+
 // ==================== DEPARTMENT ====================
 export interface DepartmentListItem {
   departmentId: number;
