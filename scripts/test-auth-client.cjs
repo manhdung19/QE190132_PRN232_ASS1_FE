@@ -7,7 +7,7 @@ const ts = require("typescript");
 
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "tasktrack-auth-client-"));
 try {
-  for (const name of ["config", "types", "auth-session", "api-client"]) {
+  for (const name of ["config", "types", "auth-session", "api-client", "auth-form-validation"]) {
     const source = fs.readFileSync(path.join(__dirname, "..", "lib", `${name}.ts`), "utf8");
     const output = ts.transpileModule(source, {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
@@ -16,6 +16,7 @@ try {
   }
   const session = require(path.join(tempRoot, "auth-session.js"));
   const { apiClient, ApiError, request } = require(path.join(tempRoot, "api-client.js"));
+  const { validateRegister, validateLogin } = require(path.join(tempRoot, "auth-form-validation.js"));
   const storage = new Map();
   const navigation = [];
   global.window = {
@@ -47,6 +48,14 @@ try {
   });
 
   (async () => {
+    assert.ok(validateRegister({ fullName: " ", email: "bad", password: "short", confirmPassword: "no" }).fullName);
+    assert.ok(validateRegister({ fullName: "Test", email: "bad", password: "short", confirmPassword: "no" }).email);
+    assert.ok(validateRegister({ fullName: "Test", email: "test@example.invalid", password: "short", confirmPassword: "no" }).password);
+    assert.ok(validateRegister({ fullName: "Test", email: "test@example.invalid", password: "Example123!", confirmPassword: "no" }).confirmPassword);
+    assert.deepEqual(validateRegister({ fullName: "Test", email: "test@example.invalid", password: "Example123!", confirmPassword: "Example123!" }), {});
+    assert.ok(validateLogin({ email: "bad", password: "" }).email);
+    assert.ok(validateLogin({ email: "test@example.invalid", password: "" }).password);
+    assert.deepEqual(validateLogin({ email: "test@example.invalid", password: "Example123!" }), {});
     assert.equal(session.getSession(), null);
     await apiClient.departments.getAll();
     assert.equal(calls.at(-1).options.headers.has("Authorization"), false);
@@ -56,10 +65,21 @@ try {
     await apiClient.auth.register({ fullName: "Test", email: account.email, password: "Example123!" });
     assert.equal(calls.at(-1).options.headers.has("Authorization"), false);
     assert.deepEqual(navigation, []);
+    replies.push(json({ title: "Conflict", status: 409 }, 409));
+    await assert.rejects(apiClient.auth.register({ fullName: "Test", email: account.email, password: "Example123!" }),
+      (error) => error.status === 409);
+    assert.deepEqual(navigation, []);
     replies.push(json({ title: "Invalid email or password", status: 401 }, 401));
     await assert.rejects(apiClient.auth.login({ email: account.email, password: "wrong" }),
       (error) => error.status === 401);
     assert.deepEqual(navigation, []);
+
+    replies.push(json({ token, tokenType: "Bearer", expiresAt: "unused", account }));
+    const loginResponse = await apiClient.auth.login({ email: account.email, password: "Example123!" });
+    session.saveSession(loginResponse);
+    assert.ok(session.getSession());
+    assert.equal(storage.get("tasktrack.auth.session").includes("Example123!"), false);
+    session.clearSession();
 
     session.saveSession({ token, tokenType: "Bearer", expiresAt: "unused", account });
     await apiClient.tags.create({ tagName: "New" });
@@ -84,7 +104,7 @@ try {
     storage.set("tasktrack.auth.session", JSON.stringify({ token: expired, account, expiresAt: "unused" }));
     assert.equal(session.getSession(), null);
     assert.deepEqual(navigation, ["/login"]);
-    console.log("PASS A2-09: public GET, Bearer writes/accounts, 403 preserved, 401 cleared/redirected, expiry cleared.");
+    console.log("PASS A2-09/10: public GET, Bearer, 401/403/expiry; register/login validation, 409/401 and password-free session.");
   })().catch((error) => { console.error(error); process.exitCode = 1; });
 } finally {
   const resolved = path.resolve(tempRoot);
