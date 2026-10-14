@@ -6,6 +6,20 @@ const account = {
   accountId: 7, fullName: "Browser Test Staff", email: "staff@example.invalid",
   role: 0, createdDate: "2026-10-14T00:00:00Z",
 };
+const admin = {
+  accountId: 1, fullName: "Browser Test Admin", email: "admin@example.invalid",
+  role: 1, createdDate: "2026-10-14T00:00:00Z",
+};
+const accounts = [admin, account, {
+  accountId: 8, fullName: "Task Owner", email: "owner@example.invalid",
+  role: 0, createdDate: "2026-10-14T00:00:00Z",
+}];
+
+function tokenClaims(request) {
+  try {
+    return JSON.parse(Buffer.from(request.headers.authorization.split(".")[1], "base64url").toString());
+  } catch { return null; }
+}
 const collections = {
   departments: [
     { departmentId: 1, departmentName: "Engineering", departmentDescription: "Test department", isActive: true },
@@ -41,14 +55,39 @@ http.createServer(async (request, response) => {
   if (path === "/api/auth/login" && request.method === "POST") {
     const credentials = await readJson(request);
     if (credentials.password !== "ExamplePass123!" ||
-        !["staff@example.invalid", "expiring@example.invalid"].includes(credentials.email))
+        !["staff@example.invalid", "expiring@example.invalid", "admin@example.invalid"].includes(credentials.email))
       return send(response, 401, { status: 401, title: "Invalid email or password" });
+    const loggedIn = credentials.email === "admin@example.invalid" ? admin : account;
     const exp = Math.floor(Date.now() / 1000) +
       (credentials.email === "expiring@example.invalid" ? 8 : 3600);
-    const token = `a.${Buffer.from(JSON.stringify({ accountId: account.accountId,
-      email: account.email, role: "Staff", roleId: 0, exp })).toString("base64url")}.c`;
+    const token = `a.${Buffer.from(JSON.stringify({ accountId: loggedIn.accountId,
+      email: loggedIn.email, role: loggedIn.role === 1 ? "Admin" : "Staff",
+      roleId: loggedIn.role, exp })).toString("base64url")}.c`;
     return send(response, 200, { token, tokenType: "Bearer",
-      expiresAt: new Date(exp * 1000).toISOString(), account });
+      expiresAt: new Date(exp * 1000).toISOString(), account: loggedIn });
+  }
+  if (path === "/api/accounts" || path.startsWith("/api/accounts/")) {
+    const claims = tokenClaims(request);
+    if (!claims) return send(response, 401, { status: 401, title: "Unauthorized" });
+    if (claims.roleId !== 1) return send(response, 403, { status: 403, title: "Forbidden" });
+    const match = path.match(/^\/api\/accounts\/(\d+)$/);
+    const id = match ? Number(match[1]) : null;
+    const index = accounts.findIndex((item) => item.accountId === id);
+    if (request.method === "GET" && id === null) return send(response, 200, accounts);
+    if (index < 0) return send(response, 404, { status: 404, title: "Not found" });
+    if (request.method === "GET") return send(response, 200, accounts[index]);
+    if (request.method === "PUT") {
+      const data = await readJson(request);
+      accounts[index] = { ...accounts[index], fullName: data.fullName, role: data.role };
+      return send(response, 200, accounts[index]);
+    }
+    if (request.method === "DELETE") {
+      if (id === 8 || id === claims.accountId)
+        return send(response, 400, { status: 400, title: "Operation blocked",
+          errors: { operation: [id === 8 ? "Cannot delete an account that created tasks." : "Cannot delete current Admin."] } });
+      accounts.splice(index, 1);
+      return send(response, 204, null);
+    }
   }
   for (const [resource, items] of Object.entries(collections)) {
     if (path === `/api/${resource}` && request.method === "GET")
