@@ -7,7 +7,7 @@ const ts = require("typescript");
 
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "tasktrack-auth-client-"));
 try {
-  for (const name of ["config", "types", "auth-session", "api-client", "auth-form-validation"]) {
+  for (const name of ["config", "types", "auth-session", "api-client", "auth-form-validation", "dashboard"]) {
     const source = fs.readFileSync(path.join(__dirname, "..", "lib", `${name}.ts`), "utf8");
     const output = ts.transpileModule(source, {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
@@ -17,6 +17,7 @@ try {
   const session = require(path.join(tempRoot, "auth-session.js"));
   const { apiClient, ApiError, request } = require(path.join(tempRoot, "api-client.js"));
   const { validateRegister, validateLogin } = require(path.join(tempRoot, "auth-form-validation.js"));
+  const { loadDashboardCounts } = require(path.join(tempRoot, "dashboard.js"));
   const storage = new Map();
   const navigation = [];
   global.window = {
@@ -88,6 +89,9 @@ try {
     assert.equal(calls.at(-1).options.headers.get("Authorization"), `Bearer ${token}`);
     await apiClient.projects.getAll();
     assert.equal(calls.at(-1).options.headers.has("Authorization"), false);
+    replies.push(json([{}, {}]), json([{}]), json([{}, {}, {}]), json([]));
+    assert.deepEqual(await loadDashboardCounts(), { departments: 2, projects: 1, tasks: 3, tags: 0 });
+    for (const call of calls.slice(-4)) assert.equal(call.options.headers.has("Authorization"), false);
 
     replies.push(json({ title: "Forbidden", status: 403 }, 403));
     await assert.rejects(apiClient.accounts.getAll(), (error) => error instanceof ApiError && error.status === 403);
@@ -104,7 +108,7 @@ try {
     storage.set("tasktrack.auth.session", JSON.stringify({ token: expired, account, expiresAt: "unused" }));
     assert.equal(session.getSession(), null);
     assert.deepEqual(navigation, ["/login"]);
-    console.log("PASS A2-09/10: public GET, Bearer, 401/403/expiry; register/login validation, 409/401 and password-free session.");
+    console.log("PASS A2-09/10/11: public GET, Bearer, 401/403/expiry; auth forms; dashboard counts.");
   })().catch((error) => { console.error(error); process.exitCode = 1; });
 } finally {
   const resolved = path.resolve(tempRoot);
