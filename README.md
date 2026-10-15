@@ -1,4 +1,4 @@
-# TaskTrack Frontend (Next.js) — Giai đoạn D Bàn giao
+# TaskTrack Frontend (Next.js) — Assignment 2
 
 Ứng dụng Frontend quản lý công việc và dự án theo nhóm (**TaskTrack**) được xây dựng bằng **Next.js 16 (App Router)**, **TypeScript**, **Tailwind CSS** và **ESLint**. Hệ thống tích hợp toàn diện với Backend API ASP.NET Core (.NET 8) và cơ sở dữ liệu PostgreSQL.
 
@@ -16,7 +16,9 @@ NEXT_PUBLIC_API_URL=http://localhost:5200/api
 
 > **Lưu ý quan trọng về API URL:**
 > - Biến `NEXT_PUBLIC_API_URL` **đã bao gồm tiền tố `/api`** (`http://localhost:5200/api`). Các endpoint được nối trực tiếp `${API_BASE_URL}/tasks`, tuyệt đối không lặp lại `/api`.
-> - Toàn bộ 24 endpoint của hệ thống là public, không gửi header `Authorization`.
+> - GET nghiệp vụ vẫn public. POST/PUT/DELETE cần Staff/Admin Bearer token; `/api/accounts` chỉ dành cho Admin. Frontend gắn token khi đăng nhập và xử lý 401/403.
+
+Khi triển khai trên Vercel, đặt `NEXT_PUBLIC_API_URL=https://<backend-domain>/api` cho môi trường Production và tạo deployment mới sau khi thay đổi. Biến `NEXT_PUBLIC_*` nằm trong bundle client, không chứa secret. Quy trình DB backup/nâng schema, Render, seed Admin, smoke test và rollback nằm trong [runbook Backend](https://github.com/manhdung19/QE190132_PRN232_ASS1_BE/blob/main/docs/ASSIGNMENT2-DEPLOYMENT-RUNBOOK.md). Việc triển khai live thuộc A2-17.
 
 ---
 
@@ -34,7 +36,7 @@ npm.cmd run dev
 # Kiểm tra cú pháp và quy chuẩn code (ESLint - 0 errors, 0 warnings)
 npm.cmd run lint
 
-# Biên dịch tối ưu hóa cho Production (Build 10/10 routes thành công)
+# Biên dịch tối ưu hóa cho Production
 npm.cmd run build
 
 # Khởi chạy bản build Production
@@ -43,7 +45,7 @@ npm.cmd start
 
 ---
 
-## 3. Danh mục 10 Route & Chức năng bàn giao Giai đoạn D
+## 3. Các route nghiệp vụ và quản trị
 
 Toàn bộ 10 trang theo yêu cầu Assignment 1 đã hoàn thiện và kết nối trực tiếp với Backend API thật (không dùng dữ liệu giả lập/mock):
 
@@ -120,13 +122,9 @@ Frontend/
 
 ---
 
-## 6. Trạng thái bàn giao & Bước tiếp theo (Giai đoạn E)
+## 6. Kiểm tra trước triển khai Assignment 2
 
-- **Kết quả nghiệm thu Giai đoạn D**:
-  - `npm.cmd run lint`: Đạt 0 lỗi, 0 cảnh báo.
-  - `npm.cmd run build`: Biên dịch Turbopack thành công 10/10 route.
-  - 10 route hoạt động ổn định với Backend API PostgreSQL local thật.
-- **Kế hoạch Giai đoạn E**:
-  - Kiểm thử tích hợp tự động End-to-End (E2E testing với Playwright / Script E2E).
-  - Triển khai Backend API lên dịch vụ đám mây (Render) và Frontend lên Vercel.
-  - Cấu hình CORS production và xác thực domain thực tế.
+- Chạy `npm.cmd run lint`, `npm.cmd run build` và `node scripts/test-auth-client.cjs` từ thư mục Frontend. Bộ kiểm thử này đã đạt trong A2-15 trên môi trường local.
+- Kiểm tra Vercel Production dùng đúng repo/commit, `NEXT_PUBLIC_API_URL` trỏ HTTPS đến Backend đã nâng DB và kết thúc bằng `/api`. Đổi biến môi trường phải build/deploy lại.
+- Kiểm tra Staff đăng nhập và CRUD tại `/admin/departments`, `/admin/projects`, `/admin/tasks`, `/admin/tags`; Admin thấy `/admin/accounts`; ẩn danh vào `/admin` được chuyển sang `/login`. Theo dõi 401/403, CORS preflight và logout bằng browser Network.
+- Ghi URL và kết quả smoke test live vào A2-17 sau khi thực sự triển khai. Rollback Frontend qua deployment Vercel trước đó; rollback Backend/DB theo runbook ở trên.
