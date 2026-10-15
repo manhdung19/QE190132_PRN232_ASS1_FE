@@ -37,6 +37,10 @@ try {
     accountId: 7, email: account.email, role: "Staff", roleId: 0, exp,
   })).toString("base64url")}.c`;
   const token = makeToken(Math.floor(Date.now() / 1000) + 3600);
+  const productionToken = `a.${Buffer.from(JSON.stringify({
+    accountId: "7", email: account.email, role: "Staff", roleId: "0",
+    exp: Math.floor(Date.now() / 1000) + 3600,
+  })).toString("base64url")}.c`;
   const calls = [];
   const replies = [];
   global.fetch = async (url, options) => {
@@ -80,6 +84,10 @@ try {
     session.saveSession(loginResponse);
     assert.ok(session.getSession());
     assert.equal(storage.get("tasktrack.auth.session").includes("Example123!"), false);
+    session.clearSession();
+
+    session.saveSession({ token: productionToken, tokenType: "Bearer", expiresAt: "unused", account });
+    assert.equal(session.getSession()?.account.accountId, 7);
     session.clearSession();
 
     session.saveSession({ token, tokenType: "Bearer", expiresAt: "unused", account });

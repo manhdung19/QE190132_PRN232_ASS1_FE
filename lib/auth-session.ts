@@ -17,18 +17,28 @@ interface JwtClaims {
   exp: number;
 }
 
+function integerClaim(value: unknown): number | null {
+  if (typeof value === "number") return Number.isSafeInteger(value) ? value : null;
+  if (typeof value !== "string" || !/^(0|[1-9]\d*)$/.test(value)) return null;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) ? parsed : null;
+}
+
 export function readJwtClaims(token: string): JwtClaims | null {
   try {
     const payload = token.split(".")[1];
     if (!payload) return null;
     const encoded = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const claims = JSON.parse(atob(encoded)) as Partial<JwtClaims>;
-    if (!Number.isInteger(claims.accountId) || !Number.isInteger(claims.exp) ||
+    const claims = JSON.parse(atob(encoded)) as Record<string, unknown>;
+    const accountId = integerClaim(claims.accountId);
+    const roleId = integerClaim(claims.roleId);
+    if (accountId === null || accountId <= 0 ||
+        typeof claims.exp !== "number" || !Number.isSafeInteger(claims.exp) ||
         typeof claims.email !== "string" ||
         (claims.role !== "Staff" && claims.role !== "Admin") ||
-        (claims.roleId !== 0 && claims.roleId !== 1) ||
-        (claims.role === "Admin") !== (claims.roleId === 1)) return null;
-    return claims as JwtClaims;
+        (roleId !== 0 && roleId !== 1) ||
+        (claims.role === "Admin") !== (roleId === 1)) return null;
+    return { accountId, email: claims.email, role: claims.role, roleId, exp: claims.exp };
   } catch {
     return null;
   }
